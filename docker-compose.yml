@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # 1. Database Service (MySQL)
+  db:
+    image: mysql:8.0
+    container_name: link_db_mysql
+    env_file:
+      - ./.env
+    volumes:
+      # Persist data across container restarts
+      - mysql_data:/var/lib/mysql
+    # Publish the port to the host (optional for internal use, but useful for GUI tools)
+    ports:
+      - "3306:3306"
+
+  # 2. Backend API Service (Django)
+  backend:
+    build:
+      context: . # Build using the Dockerfile in the current directory
+    container_name: link_backend
+    env_file:
+      - ./.env
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000" # Run server after migrations
+    volumes:
+      - .:/app # Mount the local code for live development/hot-reloading
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db # Ensure the database is started before Django tries to connect
+
+volumes:
+  mysql_data:
