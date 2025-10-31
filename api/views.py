@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404, redirect
-from django.http import HttpResponsePermanentRedirect
+from django.http import JsonResponse
 from .models import Link
 from .serializers import LinkSerializer
 from django.utils import timezone
@@ -24,4 +24,4 @@ def short_code_redirect(request, short_code):
     link.clicks += 1
     link.last_clicked = timezone.now()
     link.save()
-    return HttpResponsePermanentRedirect(link.orig_url)
+    return JsonResponse({'orig_url': link.orig_url})
